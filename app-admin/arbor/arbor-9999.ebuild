@@ -30,7 +30,7 @@ BDEPEND="
 	dev-python/setuptools[${PYTHON_USEDEP}]
 "
 
-DOCS=( README.md )
+DOCS=( "${EGIT_CHECKOUT_DIR}/README.md" )
 
 # git-r3 clones the full repo into EGIT_CHECKOUT_DIR (defaults to ${WORKDIR}/${P}).
 # pyproject.toml lives in backend/, so S points there for distutils-r1.
