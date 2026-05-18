@@ -22,6 +22,7 @@ RDEPEND="
 	${PYTHON_DEPS}
 	dev-python/fastapi[${PYTHON_USEDEP}]
 	dev-python/uvicorn[${PYTHON_USEDEP}]
+	dev-python/websockets[${PYTHON_USEDEP}]
 	sys-apps/portage[${PYTHON_USEDEP}]
 "
 
