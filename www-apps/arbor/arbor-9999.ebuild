@@ -31,30 +31,26 @@ BDEPEND="
 
 DOCS=( README.md )
 
-# pyproject.toml lives in backend/; the Alpine frontend is in frontend/alpine/.
+# git-r3 clones the full repo into EGIT_CHECKOUT_DIR (defaults to ${WORKDIR}/${P}).
+# pyproject.toml lives in backend/, so S points there for distutils-r1.
+# The frontend is still accessible at ${WORKDIR}/${P}/frontend/alpine/.
+EGIT_CHECKOUT_DIR="${WORKDIR}/${P}"
 S="${WORKDIR}/${P}/backend"
-
-src_unpack() {
-	git-r3_src_unpack
-	# EGIT_CHECKOUT_DIR is the full repo root; we need it for the frontend
-	EGIT_CHECKOUT_DIR="${WORKDIR}/${P}"
-	git-r3_src_unpack
-}
 
 src_install() {
 	distutils-r1_src_install
 
 	# Frontend (static files — no build step needed)
 	insinto /usr/share/arbor/frontend
-	doins -r "${WORKDIR}/${P}/frontend/alpine/."
+	doins -r "${EGIT_CHECKOUT_DIR}/frontend/alpine/."
 
 	# OpenRC services
-	newinitd "${WORKDIR}/${P}/openrc/arbor-daemon" arbor-daemon
-	newinitd "${WORKDIR}/${P}/openrc/arbor"        arbor
+	newinitd "${EGIT_CHECKOUT_DIR}/openrc/arbor-daemon" arbor-daemon
+	newinitd "${EGIT_CHECKOUT_DIR}/openrc/arbor"        arbor
 
 	# Config/setup helper
 	insinto /usr/share/arbor
-	doins "${WORKDIR}/${P}/config/setup.sh"
+	doins "${EGIT_CHECKOUT_DIR}/config/setup.sh"
 	fperms 0755 /usr/share/arbor/setup.sh
 }
 
