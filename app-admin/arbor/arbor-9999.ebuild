@@ -6,7 +6,7 @@ EAPI=8
 PYTHON_COMPAT=( python3_{11,12,13} )
 DISTUTILS_USE_PEP517=setuptools
 
-inherit distutils-r1 git-r3
+inherit distutils-r1 git-r3 systemd
 
 DESCRIPTION="Local Gentoo web UI for managing Portage"
 HOMEPAGE="https://github.com/gorecodes/Arbor"
@@ -17,6 +17,8 @@ EGIT_BRANCH="main"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS=""
+IUSE="openrc systemd"
+REQUIRED_USE="|| ( openrc systemd )"
 
 RDEPEND="
 	${PYTHON_DEPS}
@@ -41,9 +43,13 @@ src_install() {
 	insinto /usr/share/arbor/frontend
 	doins -r "${EGIT_CHECKOUT_DIR}/frontend/alpine/."
 
-	# OpenRC services
-	newinitd "${EGIT_CHECKOUT_DIR}/openrc/arbor-daemon" arbor-daemon
-	newinitd "${EGIT_CHECKOUT_DIR}/openrc/arbor"        arbor
+	# OpenRC service
+	use openrc && newinitd "${EGIT_CHECKOUT_DIR}/openrc/arbor-daemon" arbor-daemon
+	use openrc && newinitd "${EGIT_CHECKOUT_DIR}/openrc/arbor"        arbor
+
+	# systemd units
+	use systemd && systemd_dounit "${EGIT_CHECKOUT_DIR}/systemd/arbor-daemon.service"
+	use systemd && systemd_dounit "${EGIT_CHECKOUT_DIR}/systemd/arbor.service"
 
 	# Config/setup helper
 	insinto /usr/share/arbor
@@ -57,11 +63,14 @@ pkg_postinst() {
 	elog "Run the first-time setup (creates user, TLS cert and token):"
 	elog "  bash /usr/share/arbor/setup.sh"
 	elog ""
-	elog "Then start the services:"
-	elog "  rc-service arbor-daemon start"
-	elog "  rc-service arbor start"
-	elog ""
-	elog "To start at boot:"
-	elog "  rc-update add arbor-daemon default"
-	elog "  rc-update add arbor default"
+	if use systemd; then
+		elog "Start the services:"
+		elog "  systemctl enable --now arbor-daemon arbor"
+	else
+		elog "Start the services:"
+		elog "  rc-service arbor-daemon start && rc-service arbor start"
+		elog ""
+		elog "To start at boot:"
+		elog "  rc-update add arbor-daemon default && rc-update add arbor default"
+	fi
 }
