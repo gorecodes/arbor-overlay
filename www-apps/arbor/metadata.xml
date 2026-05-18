@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+  <maintainer type="person">
+    <name>Arbor maintainer</name>
+  </maintainer>
+  <longdescription>
+    Arbor is a local Gentoo web UI for managing Portage — browse, install,
+    uninstall, and update packages from your browser. Built with FastAPI
+    (backend) and Alpine.js (frontend).
+  </longdescription>
+  <upstream>
+    <remote-id type="github">gorecodes/Arbor</remote-id>
+  </upstream>
+</pkgmetadata>
