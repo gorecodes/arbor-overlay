@@ -30,18 +30,13 @@ BDEPEND="
 	dev-python/setuptools[${PYTHON_USEDEP}]
 "
 
-DOCS=( "${EGIT_CHECKOUT_DIR}/README.md" )
-
-# git-r3 clones the full repo into EGIT_CHECKOUT_DIR (defaults to ${WORKDIR}/${P}).
-# pyproject.toml lives in backend/, so S points there for distutils-r1.
-# The frontend is still accessible at ${WORKDIR}/${P}/frontend/alpine/.
 EGIT_CHECKOUT_DIR="${WORKDIR}/${P}"
 S="${WORKDIR}/${P}/backend"
 
 src_install() {
 	distutils-r1_src_install
 
-	# Frontend (static files — no build step needed)
+	dodoc "${EGIT_CHECKOUT_DIR}/README.md"
 	insinto /usr/share/arbor/frontend
 	doins -r "${EGIT_CHECKOUT_DIR}/frontend/alpine/."
 
