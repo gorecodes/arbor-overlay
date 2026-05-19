@@ -11,11 +11,18 @@ emaint sync -r arbor-overlay
 
 ## Install
 
-Choose your init system via USE flag, then install:
+Choose your init system via USE flag, then install the stable release:
 
 ```bash
 echo 'app-admin/arbor systemd' >> /etc/portage/package.use/arbor   # or: openrc
-ACCEPT_KEYWORDS="**" emerge app-admin/arbor
+emerge app-admin/arbor
+```
+
+If you want the live ebuild that tracks the latest `main` branch:
+
+```bash
+echo '=app-admin/arbor-9999 **' >> /etc/portage/package.accept_keywords/arbor
+emerge =app-admin/arbor-9999
 ```
 
 ## First-time setup
