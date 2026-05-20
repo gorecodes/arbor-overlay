@@ -2,6 +2,8 @@
 
 Gentoo overlay for [Arbor](https://github.com/gorecodes/Arbor) — a local web UI for managing Portage.
 
+The overlay also ships the missing `dev-python/fastapi` dependency, so you do **not** need the GURU overlay to install Arbor.
+
 ## Add the overlay
 
 ```bash
