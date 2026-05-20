@@ -54,6 +54,11 @@ src_install() {
 pkg_postinst() {
 	elog "Arbor has been installed."
 	elog ""
+	elog "For 0.1.3, if you already have /etc/arbor/arbor.env from an older install,"
+	elog "it is recommended to remove it before rerunning setup so the new defaults"
+	elog "are regenerated:"
+	elog "  rm -f /etc/arbor/arbor.env"
+	elog ""
 	elog "Run the first-time setup (creates user, TLS cert and token):"
 	elog "  bash /usr/share/arbor/setup.sh"
 	elog ""
