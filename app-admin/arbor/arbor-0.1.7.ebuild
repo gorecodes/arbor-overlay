@@ -21,6 +21,7 @@ REQUIRED_USE="|| ( openrc systemd )"
 RDEPEND="
 	${PYTHON_DEPS}
 	dev-python/fastapi[${PYTHON_USEDEP}]
+	dev-python/qrcode[${PYTHON_USEDEP}]
 	dev-python/uvicorn[${PYTHON_USEDEP}]
 	dev-python/websockets[${PYTHON_USEDEP}]
 	sys-apps/portage[${PYTHON_USEDEP}]
@@ -54,7 +55,7 @@ src_install() {
 pkg_postinst() {
 	elog "Arbor has been installed."
 	elog ""
-	elog "Run the first-time setup (creates user, TLS cert and token):"
+	elog "Run the first-time setup (creates user, TLS cert and IPC key):"
 	elog "  bash /usr/share/arbor/setup.sh"
 	elog ""
 	if use systemd; then
