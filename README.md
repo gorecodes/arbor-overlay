@@ -29,7 +29,7 @@ emerge =app-admin/arbor-9999
 
 ## First-time setup
 
-After installation, run the setup script to create the system user, TLS certificate and IPC key:
+After installation, run the setup script to create the system user and IPC key. Arbor starts in local-first HTTP mode by default:
 
 ```bash
 bash /usr/share/arbor/setup.sh

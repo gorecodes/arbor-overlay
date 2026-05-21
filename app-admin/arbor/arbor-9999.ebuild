@@ -61,7 +61,7 @@ src_install() {
 pkg_postinst() {
 	elog "Arbor has been installed."
 	elog ""
-	elog "Run the first-time setup (creates user, TLS cert and IPC key):"
+	elog "Run the first-time setup (creates user and IPC key; local HTTP by default):"
 	elog "  bash /usr/share/arbor/setup.sh"
 	elog ""
 	if use systemd; then
