@@ -6,17 +6,15 @@ EAPI=8
 PYTHON_COMPAT=( python3_{11,12,13} )
 DISTUTILS_USE_PEP517=setuptools
 
-inherit distutils-r1 git-r3 systemd
+inherit distutils-r1 systemd
 
 DESCRIPTION="Local Gentoo web UI for managing Portage"
 HOMEPAGE="https://github.com/gorecodes/Arbor"
-
-EGIT_REPO_URI="https://github.com/gorecodes/Arbor.git"
-EGIT_BRANCH="main"
+SRC_URI="https://github.com/gorecodes/Arbor/archive/refs/tags/v${PV}.tar.gz -> ${P}.gh.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="amd64"
 IUSE="apparmor logrotate openrc systemd"
 REQUIRED_USE="|| ( openrc systemd )"
 
@@ -36,13 +34,12 @@ BDEPEND="
 	dev-python/setuptools[${PYTHON_USEDEP}]
 "
 
-EGIT_CHECKOUT_DIR="${WORKDIR}/${P}"
-S="${WORKDIR}/${P}/backend"
+S="${WORKDIR}/Arbor-${PV}/backend"
 
 src_install() {
 	distutils-r1_src_install
 
-	local _arbor="${WORKDIR}/${P}"
+	local _arbor="${WORKDIR}/Arbor-${PV}"
 
 	dodoc "${_arbor}/README.md"
 
@@ -81,26 +78,51 @@ src_install() {
 }
 
 pkg_postinst() {
-	elog "Arbor (live) installed."
+	elog "Arbor ${PV} installed."
 	elog ""
 	elog "Run first-time setup (system user, dirs, IPC key, owner account):"
 	elog "  bash /usr/share/arbor/setup.sh"
 	elog ""
+	elog "--- Breaking changes in v0.2.0 ---"
+	elog "  * CSRF double-submit cookies are now required on all mutating requests."
+	elog "    After upgrading, do a full logout + login to pick up the new cookies."
+	elog "    Hard-refresh the browser to reload app.js, otherwise mutations fail"
+	elog "    with '403 csrf token missing or invalid'."
+	elog ""
+	elog "  * ARBOR_APPROVAL_MODE=totp is no longer accepted (refused at boot)."
+	elog "    Migrate to: ARBOR_APPROVAL_MODE=cli"
+	elog "    or:         ARBOR_APPROVAL_MODE=none + ARBOR_ALLOW_AUTO_APPROVAL=1"
+	elog ""
+	elog "  * ARBOR_APPROVAL_MODE=none now requires ARBOR_ALLOW_AUTO_APPROVAL=1."
+	elog "    Without it Arbor refuses to start."
+	elog ""
+	elog "  * ARBOR_TOTP_SECRET via environment variable is refused (leaks via"
+	elog "    /proc/<pid>/environ). Use ARBOR_TOTP_SECRET_FILE instead."
+	elog ""
+	elog "  * Step-up password re-auth is required for every mutating action"
+	elog "    (REST + WebSocket) when ARBOR_APPROVAL_MODE != cli. The browser"
+	elog "    prompts automatically and retries the action on success."
+	elog ""
 	elog "--- Process hardening ---"
 	elog "  The init scripts apply no_new_privs and a reduced capability bounding"
-	elog "  set when setpriv is available (USE=setpriv on sys-apps/util-linux)."
+	elog "  set when setpriv is available. setpriv requires USE=setpriv on"
+	elog "  sys-apps/util-linux (not always set by default on Gentoo)."
 	elog "  Without setpriv the services start with a warning but no capability drop."
+	elog "  To enable full hardening:"
 	elog "    USE=setpriv emerge sys-apps/util-linux"
 	elog ""
 	if use logrotate; then
 		elog "--- Log rotation ---"
-		elog "  /etc/logrotate.d/arbor installed: daily, 10 MB threshold, 14 rotations."
+		elog "  /etc/logrotate.d/arbor installed: daily rotation, 10 MB threshold,"
+		elog "  14 generations kept, gzip + delaycompress."
 		elog ""
 	fi
 	if use apparmor; then
 		ewarn "--- AppArmor profiles (UNTESTED) ---"
-		ewarn "  Installed to /etc/apparmor.d/ but NOT tested end-to-end."
-		ewarn "  Start in complain mode before enforcing:"
+		ewarn "  Profiles installed to /etc/apparmor.d/ but have NOT been tested"
+		ewarn "  end-to-end against a full emerge workflow. Do not enforce in"
+		ewarn "  production without verifying on a test machine first."
+		ewarn "  Start in complain mode:"
 		ewarn "    aa-complain /etc/apparmor.d/usr.bin.arbor-daemon"
 		ewarn "    aa-complain /etc/apparmor.d/usr.bin.arbor"
 		ewarn ""
