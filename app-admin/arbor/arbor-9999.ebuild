@@ -22,6 +22,7 @@ REQUIRED_USE="|| ( openrc systemd )"
 
 RDEPEND="
 	${PYTHON_DEPS}
+	dev-python/defusedxml[${PYTHON_USEDEP}]
 	dev-python/fastapi[${PYTHON_USEDEP}]
 	dev-python/qrcode[${PYTHON_USEDEP}]
 	dev-python/uvicorn[${PYTHON_USEDEP}]
