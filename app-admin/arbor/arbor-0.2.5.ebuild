@@ -6,17 +6,15 @@ EAPI=8
 PYTHON_COMPAT=( python3_{11,12,13} )
 DISTUTILS_USE_PEP517=setuptools
 
-inherit distutils-r1 git-r3 systemd
+inherit distutils-r1 systemd
 
 DESCRIPTION="Local Gentoo web UI for managing Portage"
 HOMEPAGE="https://github.com/gorecodes/Arbor"
-
-EGIT_REPO_URI="https://github.com/gorecodes/Arbor.git"
-EGIT_BRANCH="main"
+SRC_URI="https://github.com/gorecodes/Arbor/archive/refs/tags/v${PV}.tar.gz -> ${P}.gh.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="amd64"
 IUSE="apparmor logrotate openrc systemd"
 REQUIRED_USE="|| ( openrc systemd )"
 
@@ -38,13 +36,12 @@ BDEPEND="
 	dev-python/setuptools[${PYTHON_USEDEP}]
 "
 
-EGIT_CHECKOUT_DIR="${WORKDIR}/${P}"
-S="${WORKDIR}/${P}/backend"
+S="${WORKDIR}/Arbor-${PV}/backend"
 
 src_install() {
 	distutils-r1_src_install
 
-	local _arbor="${WORKDIR}/${P}"
+	local _arbor="${WORKDIR}/Arbor-${PV}"
 
 	dodoc "${_arbor}/README.md"
 
@@ -83,26 +80,36 @@ src_install() {
 }
 
 pkg_postinst() {
-	elog "Arbor (live) installed."
+	elog "Arbor ${PV} installed."
 	elog ""
 	elog "Run first-time setup (system user, dirs, IPC key, owner account):"
 	elog "  bash /usr/share/arbor/setup.sh"
 	elog ""
-	elog "--- Process hardening ---"
-	elog "  The init scripts apply no_new_privs and a reduced capability bounding"
-	elog "  set when setpriv is available (USE=setpriv on sys-apps/util-linux)."
-	elog "  Without setpriv the services start with a warning but no capability drop."
-	elog "    USE=setpriv emerge sys-apps/util-linux"
+	elog "--- What's new in v0.2.5 ---"
+	elog "  No breaking changes or config migrations required."
+	elog ""
+	elog "  - Portage News (GLEP 42): dashboard tile + dedicated panel with"
+	elog "    per-item read tracking and mark-all-read."
+	elog "  - GLSA security advisories: badge on dashboard, panel with severity,"
+	elog "    affected packages and quick-fix button."
+	elog "  - Cache cleaner: eclean-dist / eclean-pkg pretend + run flow under"
+	elog "    Maintenance, with approval gate."
+	elog "  - Config snapshot: export /etc/portage as zip (including make.profile"
+	elog "    symlink); import with automatic backup before applying."
+	elog "  - Pretend badges: N/U/D/R operation counts shown after pretend output."
 	elog ""
 	if use logrotate; then
 		elog "--- Log rotation ---"
-		elog "  /etc/logrotate.d/arbor installed: daily, 10 MB threshold, 14 rotations."
+		elog "  /etc/logrotate.d/arbor installed: daily rotation, 10 MB threshold,"
+		elog "  14 generations kept, gzip + delaycompress."
 		elog ""
 	fi
 	if use apparmor; then
 		ewarn "--- AppArmor profiles (UNTESTED) ---"
-		ewarn "  Installed to /etc/apparmor.d/ but NOT tested end-to-end."
-		ewarn "  Start in complain mode before enforcing:"
+		ewarn "  Profiles installed to /etc/apparmor.d/ but have NOT been tested"
+		ewarn "  end-to-end against a full emerge workflow. Do not enforce in"
+		ewarn "  production without verifying on a test machine first."
+		ewarn "  Start in complain mode:"
 		ewarn "    aa-complain /etc/apparmor.d/usr.bin.arbor-daemon"
 		ewarn "    aa-complain /etc/apparmor.d/usr.bin.arbor"
 		ewarn ""
